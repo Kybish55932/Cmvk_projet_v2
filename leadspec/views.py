@@ -99,6 +99,6 @@ def supervisor_page(request):
 def leadspec_list(request):
     """Главная страница для старшей смены (supervisor)."""
     violations = Inspector.objects.all()
-    return render(request, "supervisor/supervisor_list.html", {
+    return render(request, "supervisor/leadspec_list.html", {
         "violations": violations
     })

@@ -176,29 +176,45 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btn.classList.contains("delete")) deleteViolation(row.dataset.id);
   });
 
-  if (addBtn) {
-    addBtn.addEventListener("click", () => {
-      const newObj = {
-        date: todayStr,
-        airport: "",
-        flight: "",
-        direction: "",
-        type: "",
-        time_start: "",
-        time_end: "",
-        sector: "",
-        violation_start: "",
-        violation_end: "",
-        service: "",
-        violation: "",
-        description: "",
-        supervisor: "",
-        tehnick: "",
-        status: "new"
-      };
-      addViolation(newObj);
-    });
-  }
+ if (addBtn) {
+  addBtn.addEventListener("click", () => {
+    const newObj = {
+      date: todayStr,
+      airport: "",
+      flight: "",
+      direction: "",
+      type: "",
+      time_start: "",
+      time_end: "",
+      sector: "",
+      violation_start: "",
+      violation_end: "",
+      service: "",
+      violation: "",
+      description: "",
+      supervisor: "",
+      tehnick: "",
+      status: "new"
+    };
 
-  loadViolations();
+    fetch("/supervisor/api/violations/create/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrfToken
+      },
+      body: JSON.stringify(newObj)
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.id) {
+        newObj.id = data.id;
+        violationsData.unshift(newObj);
+        render();
+        const newRow = tbody.querySelector(`tr[data-id="${newObj.id}"]`);
+        if (newRow) startEditing(newRow);   // 👈 сразу в режим редактирования
+      }
+    });
+  });
+}
 });

@@ -91,15 +91,15 @@
       </thead>
       <tbody>
         {% for v in violations %}
-        <tr>
+        <tr data-id="{{ v.id }}">
           <td>{{ v.date }}</td>
           <td>{{ v.airport }}</td>
           <td>{{ v.flight }}</td>
           <td>{{ v.direction }}</td>
           <td>{{ v.type }}</td>
-          <td>{{ v.time }}</td>
+          <td>{{ v.time_start }} - {{ v.time_end }}</td>
           <td>{{ v.sector }}</td>
-          <td>{{ v.violation_time }}</td>
+          <td>{{ v.violation_start }} - {{ v.violation_end }}</td>
           <td>{{ v.service }}</td>
           <td>{{ v.violation }}</td>
           <td>{{ v.description }}</td>
