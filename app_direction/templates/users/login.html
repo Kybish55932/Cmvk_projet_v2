@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Авторизация</title>
+  <style>
+    /* Базовые переменные цвета и шрифты */
+    :root{
+      --bg: #f3f4f6;
+      --card: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --primary: #2563eb;
+      --primary-dark: #1e40af;
+      --danger: #dc2626;
+      --radius-xl: 20px;
+      --shadow-lg: 0 10px 30px rgba(15, 23, 42, 0.12);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    html,body{
+      height:100%;
+      margin:0;
+      background: var(--bg);
+      color:var(--text);
+    }
+
+    /* Центрирование */
+    .page {
+      min-height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      box-sizing:border-box;
+    }
+
+    /* Карточка */
+    .card{
+      width:100%;
+      max-width:420px;
+      background:var(--card);
+      border-radius:var(--radius-xl);
+      box-shadow:var(--shadow-lg);
+      padding:28px;
+      box-sizing:border-box;
+    }
+
+    h1{
+      margin:0 0 18px 0;
+      font-size:20px;
+      line-height:1.1;
+      text-align:center;
+      font-weight:700;
+    }
+
+    /* Сообщения об ошибке */
+    .form-error {
+      background: #fef2f2;
+      color: var(--danger);
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 14px;
+      border: 1px solid #fecaca;
+    }
+
+    .form-error ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .form-error li {
+      margin: 4px 0;
+    }
+
+    .field-error {
+      color: var(--danger);
+      font-size: 13px;
+      margin-top: 4px;
+      display: block;
+    }
+
+    /* Формы и поля */
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      font-size: 15px;
+      outline: none;
+      box-sizing: border-box;
+      transition: box-shadow .15s, border-color .15s;
+      background: #fff;
+      color: var(--text);
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      border-color: rgba(37,99,235,0.9);
+      box-shadow: 0 4px 12px rgba(37,99,235,0.12);
+    }
+
+    input.error {
+      border-color: var(--danger);
+      background-color: #fef2f2;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 13px 14px;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 600;
+      border-radius: 10px;
+      border: 0;
+      cursor: pointer;
+      font-size: 15px;
+      transition: transform .06s, background .12s;
+      margin-top: 8px;
+    }
+
+    .btn:active { transform: translateY(1px); }
+    .btn:hover { background: var(--primary-dark); }
+
+    /* Ссылки */
+    .links {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .links a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    .links a:hover {
+      text-decoration: underline;
+    }
+
+    /* Адаптив */
+    @media (max-width:420px){
+      .card {
+        padding: 20px;
+        border-radius: 14px;
+      }
+      h1 {
+        font-size: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="card" role="main" aria-labelledby="login-heading">
+      <h1 id="login-heading">Вход в систему</h1>
+
+      <!-- Общие ошибки формы -->
+      {% if form.non_field_errors %}
+      <div class="form-error" role="alert" aria-live="assertive">
+        {{ form.non_field_errors }}
+      </div>
+      {% endif %}
+
+      <form method="post" class="login-form" novalidate>
+        {% csrf_token %}
+
+        <!-- Цикл по полям формы -->
+        {% for field in form %}
+        <div class="field">
+          <label class="form-label" for="{{ field.id_for_label }}">
+            {{ field.label }}
+          </label>
+          {{ field }}
+
+          <!-- Ошибки конкретного поля -->
+          {% if field.errors %}
+          <div class="field-error">
+            {{ field.errors }}
+          </div>
+          {% endif %}
+        </div>
+        {% endfor %}
+
+        <button type="submit" class="btn">Войти</button>
+      </form>
+
+      <div class="links">
+
+      </div>
+    </div>
+  </div>
+</body>
+</html>

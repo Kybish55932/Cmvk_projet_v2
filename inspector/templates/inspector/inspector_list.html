@@ -1,0 +1,91 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Панель инспектора</title>
+  <link rel="stylesheet" href="{% static 'inspector/css/style.css' %}">
+</head>
+<body>
+  <!-- Навбар -->
+  <div class="navbar">
+    <div class="brand">Панель инспектора</div>
+    <div>
+      Добро пожаловать, Инспектор
+      <button class="btn">Выйти</button>
+    </div>
+  </div>
+
+  <!-- Кнопки -->
+  <div class="buttons">
+    <button class="btn btn-success">➕ Добавить нарушение</button>
+  </div>
+
+  <!-- Подсчет -->
+  <div class="summary">
+    ✅ Подтвержденные: <span id="confirmed" style="color:green;">0</span> |
+    ❌ Отклоненные: <span id="rejected" style="color:red;">0</span> |
+    📋 Всего: <span id="total" style="color:blue;">{{ violations|length }}</span>
+  </div>
+
+  <!-- Таблица -->
+  <div class="table-container">
+    <table id="violationsTable">
+      <thead>
+        <tr>
+          <th>Дата</th>
+          <th>Аэропорт</th>
+          <th>Рейс</th>
+          <th>Направление</th>
+          <th>Прилет/Вылет</th>
+          <th>Время рейса (с)</th>
+          <th>Время рейса (до)</th>
+          <th>Сектор-стоянка</th>
+          <th>Время нарушения (с)</th>
+          <th>Время нарушения (до)</th>
+          <th>Служба</th>
+          <th>Вид нарушения</th>
+          <th>Описание</th>
+          <th>Старший смены</th>
+          <th>Кем выявлено</th>
+          <th>Смена</th>
+          <th>Проверка</th>
+          <th>Действия</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for v in violations %}
+        <tr data-id="{{ v.id }}">
+          <td>{{ v.date|date:"d.m.Y" }}</td>
+          <td>{{ v.airport }}</td>
+          <td>{{ v.flight }}</td>
+          <td>{{ v.direction }}</td>
+          <td>{{ v.type }}</td>
+          <td>{{ v.time_start|time:"H:i" }}</td>
+          <td>{{ v.time_end|time:"H:i" }}</td>
+          <td>{{ v.sector }}</td>
+          <td>{{ v.violation_start|time:"H:i" }}</td>
+          <td>{{ v.violation_end|time:"H:i" }}</td>
+          <td>{{ v.service }}</td>
+          <td>{{ v.violation }}</td>
+          <td>{{ v.description }}</td>
+          <td>{{ v.supervisor }}</td>
+          <td>{{ v.inspector }}</td>
+          <td>{{ v.shift }}</td>
+          <td class="action-btns">
+            <button class="approve">✔</button>
+            <button class="reject">✖</button>
+          </td>
+          <td class="action-btns">
+            <button class="edit">✏️</button>
+            <button class="delete">🗑️</button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <script src="{% static 'inspector/js/script.js' %}"></script>
+</body>
+</html>
