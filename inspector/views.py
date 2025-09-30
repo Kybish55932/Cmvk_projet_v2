@@ -7,6 +7,13 @@ import json
 
 from .models import Inspector
 
+from django.shortcuts import render, redirect
+from django.http import JsonResponse, HttpResponseForbidden
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.utils import timezone
+from collections import defaultdict
+from .models import Inspector
+
 
 AIRPORT_CHOICES = ["Манас", "Ош", "Баткен", "Разаков"]
 TYPE_CHOICES = ["Прилет", "Вылет"]
@@ -80,6 +87,12 @@ def edit_violation(request, id):
         "service", "violation", "description",
         "supervisor", "inspector", "shift", "status"
     ]
+    for field in editable_fields:
+        if field in data:
+            if field in ("time_start", "time_end", "violation_start", "violation_end"):
+                setattr(v, field, _parse_hhmm(data[field]))
+            elif data[field] not in (None, "", []):
+                setattr(v, field, data[field])
 
     for field in editable_fields:
         if field in data and data[field] not in (None, "", []):
@@ -90,6 +103,8 @@ def edit_violation(request, id):
 
     v.save()
     return JsonResponse({"success": True})
+
+
 
 
 @csrf_exempt
@@ -173,3 +188,61 @@ def inspector_page(request):
 def database_page(request):
     violations = Inspector.objects.all().order_by("-date", "-id")
     return render(request, "inspector/database.html", {"violations": violations})
+
+
+def is_inspector(user):
+    return True
+
+
+@login_required
+@user_passes_test(is_inspector)  # доступ только для инспектора
+def violations_by_week(request):
+    if request.method == 'POST':
+        # Получаем выбранные нарушения из POST-запроса (при обычной отправке формы)
+        selected_ids = request.POST.getlist('violation')
+        # Обновляем статус всех выбранных нарушений на 'sent'
+        Inspector.objects.filter(id__in=selected_ids, status='approved').update(status='sent')
+        # После обновления перенаправляем обратно на ту же страницу
+        return redirect('violations_by_week')
+
+    # Для GET-запроса: получаем все нарушения со статусом 'approved'
+    violations = Inspector.objects.filter(status='approved').order_by('-date')
+    # Группируем нарушения по ISO-неделям
+    violations_by_week = defaultdict(list)
+    for viol in violations:
+        # Получаем год и номер недели по ISO (isocalendar возвращает кортеж (год, номер_недели, день_недели))
+        year, week_number, weekday = viol.date.isocalendar()
+        week_label = f"{year}-W{week_number}"
+        violations_by_week[week_label].append(viol)
+    # Преобразуем в обычный dict для передачи в шаблон (сохраняя порядок добавления)
+    violations_by_week = dict(violations_by_week)
+    return render(request, 'inspector/violations_by_week.html', {'violations_by_week': violations_by_week})
+
+
+@login_required
+@user_passes_test(is_inspector)
+def send_for_approval(request):
+    # Представление для AJAX-запроса на изменение статусов
+    if request.method == 'POST':
+        # Извлекаем список ID нарушений из AJAX-запроса
+        selected_ids = request.POST.getlist('ids[]')
+        # Массово обновляем статус выбранных нарушений
+        Inspector.objects.filter(id__in=selected_ids, status='approved').update(status='sent')
+        # Возвращаем JSON-ответ об успешном выполнении
+        return JsonResponse({'status': 'success'})
+    else:
+        return HttpResponseForbidden("Недопустимый запрос")
+
+
+@csrf_exempt
+def send_violations(request):
+    """Обновляет статус выбранных нарушений на 'sent'."""
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body.decode("utf-8"))
+            ids = data.get("ids", [])
+            Inspector.objects.filter(id__in=ids).update(status="sent")
+            return JsonResponse({"success": True, "updated_ids": ids})
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)}, status=400)
+    return JsonResponse({"error": "Invalid request"}, status=400)

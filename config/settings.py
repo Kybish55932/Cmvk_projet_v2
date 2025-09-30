@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'inspector',
     'rest_framework',
     'leadspec',
+    'service',
+    'rukap',
 
 
 

@@ -130,9 +130,6 @@ tr.approved { /* по требованию цвет не меняем */ }
   font-size:14px;
 }
 
-/* видимые кнопки проверки */
-.action-btns .approve { background:#28a745; color:white; }
-.action-btns .reject { background:#dc3545; color:white; }
 
 /* редактировать / удалить */
 .action-btns .edit { background:#f0f0f0; color:#333; border:1px solid #d0d0d0; }
@@ -171,46 +168,4 @@ input[type="text"], input[type="time"], input[type="date"], select, textarea {
 
 .filters .row .apply-btn {
     margin-top: auto; /* кнопка прижмется вниз */
-}
-.filters-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: flex-end;
-}
-
-.filters-row div {
-  display: flex;
-  flex-direction: column;
-}
-#violationsTable { table-layout: fixed; width: 100%; }
-
-#violationsTable th:nth-child(3),
-#violationsTable td:nth-child(3) {
-  width: 40px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-#violationsTable th:nth-child(4),
-#violationsTable td:nth-child(4) {
-  width: 100px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-#violationsTable th:nth-child(11),
-#violationsTable td:nth-child(11) {
-  width: 55px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-#violationsTable th:nth-child(13),
-#violationsTable td:nth-child(13) {
-  width: 130px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }

@@ -4,7 +4,26 @@ document.addEventListener("DOMContentLoaded", () => {
   const addBtn = document.querySelector(".buttons .btn-success");
   const todayStr = new Date().toISOString().slice(0, 10);
 
+  // 👇 берём текущего пользователя из body
+  const currentUser = document.body.dataset.username || "";
+
   let violationsData = [];
+
+  const AIRPORTS   = ["Манас", "Ош", "Баткен", "Разаков"];
+  const SERVICES   = ["САБ", "САСПОП", "СПОиАТ"];
+  const INSPECTORS = ["Осмонов Нурсултан", "Касымова Рима"];
+
+  // универсальный рендер <select>
+  function selectHTML(options, selectedValue) {
+    const opts = options.map(o => {
+      const val = (o ?? "").toString();
+      const sel = (val === (selectedValue ?? "").toString()) ? " selected" : "";
+      const safe = val.replace(/&/g,"&amp;").replace(/</g,"&lt;")
+                      .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+      return `<option value="${safe}"${sel}>${safe}</option>`;
+    }).join("");
+    return `<select>${opts}</select>`;
+  }
 
   // ---------------- helpers ----------------
   function getCookie(name) {
@@ -24,8 +43,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const csrfToken = getCookie("csrftoken");
 
   const escapeHtml = (s) =>
-    (s === 0 || s) ? String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;").replace(/"/g, "&quot;") : "";
+    (s === 0 || s) ? String(s).replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;") : "";
 
   const findIdx = (id) => violationsData.findIndex(v => String(v.id) === String(id));
 
@@ -73,7 +93,13 @@ document.addEventListener("DOMContentLoaded", () => {
       body: JSON.stringify(newObj)
     }).then(r => r.json())
       .then(data => {
-        if (data.success) loadViolations();
+        if (data.id) {
+          newObj.id = data.id;
+          violationsData.unshift(newObj);
+          render();
+          const newRow = tbody.querySelector(`tr[data-id="${newObj.id}"]`);
+          if (newRow) startEditing(newRow);
+        }
       });
   }
 
@@ -114,23 +140,23 @@ document.addEventListener("DOMContentLoaded", () => {
     const v = violationsData[idx];
     const c = row.querySelectorAll("td");
 
-    c[0].innerHTML = `<input type="date" value="${v.date || todayStr}">`;
-    c[1].innerHTML = `<input type="text" value="${v.airport || ""}">`;
-    c[2].innerHTML = `<input type="text" value="${v.flight || ""}">`;
-    c[3].innerHTML = `<input type="text" value="${v.direction || ""}">`;
-    c[4].innerHTML = `<input type="text" value="${v.type || ""}">`;
-    c[5].innerHTML = `
+    c[0].innerHTML  = `<input type="date" value="${v.date || todayStr}">`;
+    c[1].innerHTML  = selectHTML(AIRPORTS, v.airport || "");
+    c[2].innerHTML  = `<input type="text" value="${v.flight || ""}">`;
+    c[3].innerHTML  = `<input type="text" value="${v.direction || ""}">`;
+    c[4].innerHTML  = selectHTML(["Прилет", "Вылет"], v.type || "");
+    c[5].innerHTML  = `
       <input type="time" value="${v.time_start || ""}">
       <input type="time" value="${v.time_end || ""}">`;
-    c[6].innerHTML = `<input type="text" value="${v.sector || ""}">`;
-    c[7].innerHTML = `
+    c[6].innerHTML  = `<input type="text" value="${v.sector || ""}">`;
+    c[7].innerHTML  = `
       <input type="time" value="${v.violation_start || ""}">
       <input type="time" value="${v.violation_end || ""}">`;
-    c[8].innerHTML = `<input type="text" value="${v.service || ""}">`;
-    c[9].innerHTML = `<input type="text" value="${v.violation || ""}">`;
+    c[8].innerHTML  = selectHTML(SERVICES, v.service || "");
+    c[9].innerHTML  = `<input type="text" value="${v.violation || ""}">`;
     c[10].innerHTML = `<textarea>${v.description || ""}</textarea>`;
-    c[11].innerHTML = `<input type="text" value="${v.supervisor || ""}">`;
-    c[12].innerHTML = `<input type="text" value="${v.tehnick || ""}">`;
+    c[11].innerHTML = `${escapeHtml(v.supervisor || "")}`;   // 👈 supervisor readonly
+    c[12].innerHTML = selectHTML(INSPECTORS, v.tehnick || "");
     c[13].innerHTML = `<button class="save">💾</button><button class="cancel">❌</button>`;
   }
 
@@ -143,21 +169,22 @@ document.addEventListener("DOMContentLoaded", () => {
     const updated = {
       id: id,
       date: c[0].querySelector("input").value,
-      airport: c[1].querySelector("input").value,
+      airport: c[1].querySelector("select,input").value,
       flight: c[2].querySelector("input").value,
       direction: c[3].querySelector("input").value,
-      type: c[4].querySelector("input").value,
+      type: c[4].querySelector("select,input").value,
       time_start: c[5].querySelectorAll("input")[0].value,
       time_end: c[5].querySelectorAll("input")[1].value,
       sector: c[6].querySelector("input").value,
       violation_start: c[7].querySelectorAll("input")[0].value,
       violation_end: c[7].querySelectorAll("input")[1].value,
-      service: c[8].querySelector("input").value,
+      service: c[8].querySelector("select,input").value,
       violation: c[9].querySelector("input").value,
       description: c[10].querySelector("textarea").value,
-      supervisor: c[11].querySelector("input").value,
-      tehnick: c[12].querySelector("input").value,
+      supervisor: currentUser,   // 👈 сохраняем текущего пользователя
+      tehnick: c[12].querySelector("select,input").value,
     };
+
     saveViolation(updated);
   }
 
@@ -176,45 +203,30 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btn.classList.contains("delete")) deleteViolation(row.dataset.id);
   });
 
- if (addBtn) {
-  addBtn.addEventListener("click", () => {
-    const newObj = {
-      date: todayStr,
-      airport: "",
-      flight: "",
-      direction: "",
-      type: "",
-      time_start: "",
-      time_end: "",
-      sector: "",
-      violation_start: "",
-      violation_end: "",
-      service: "",
-      violation: "",
-      description: "",
-      supervisor: "",
-      tehnick: "",
-      status: "new"
-    };
-
-    fetch("/supervisor/api/violations/create/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": csrfToken
-      },
-      body: JSON.stringify(newObj)
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.id) {
-        newObj.id = data.id;
-        violationsData.unshift(newObj);
-        render();
-        const newRow = tbody.querySelector(`tr[data-id="${newObj.id}"]`);
-        if (newRow) startEditing(newRow);   // 👈 сразу в режим редактирования
-      }
+  if (addBtn) {
+    addBtn.addEventListener("click", () => {
+      const newObj = {
+        date: todayStr,
+        airport: "",
+        flight: "",
+        direction: "",
+        type: "",
+        time_start: "",
+        time_end: "",
+        sector: "",
+        violation_start: "",
+        violation_end: "",
+        service: "",
+        violation: "",
+        description: "",
+        supervisor: currentUser,   // 👈 подставляем сразу
+        tehnick: "",
+        status: "new"
+      };
+      addViolation(newObj);
     });
-  });
-}
+  }
+
+  // стартовый рендер
+  loadViolations();
 });

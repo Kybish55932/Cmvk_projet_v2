@@ -1,0 +1,85 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Панель рукапа</title>
+  <link rel="stylesheet" href="{% static 'rukap/css/style.css' %}">
+</head>
+<body>
+  <!-- Навбар -->
+  <div class="navbar">
+    <div class="brand">Панель рукапа</div>
+    <div>
+      Добро пожаловать
+      <button class="btn">Выйти</button>
+    </div>
+  </div>
+
+  <!-- Фильтры -->
+  <div class="filters">
+    <h5>Фильтрация по неделям</h5>
+    <div class="row" style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+
+      <!-- Неделя -->
+      <div>
+        <div style="display: flex; gap: 5px; align-items: center;">
+          <button class="btn" id="prevWeekBtn">◀️</button>
+          <span id="weekLabel">--.-- - --.--</span>
+          <button class="btn" id="nextWeekBtn">▶️</button>
+          <button class="btn" id="currentWeekBtn">Последняя неделя</button>
+        </div>
+      </div>
+
+      <!-- Кнопка согласовать -->
+      <div style="margin-left:auto;">
+        <button class="btn btn-success" id="approveAllBtn">✔️ Согласовать</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Таблица -->
+  <div class="table-container">
+    <table id="violationsTable">
+      <thead>
+        <tr>
+          <th>Дата</th>
+          <th>Аэропорт</th>
+          <th>Рейс</th>
+          <th>Направление</th>
+          <th>Прилет/Вылет</th>
+          <th>Время рейса</th>
+          <th>Сектор-стоянка</th>
+          <th>Время нарушения</th>
+          <th>Служба</th>
+          <th>Вид нарушения</th>
+          <th>Описание</th>
+          <th>Статус</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for v in violations %}
+        <tr>
+          <td>{{ v.date }}</td>
+          <td>{{ v.airport }}</td>
+          <td>{{ v.flight }}</td>
+          <td>{{ v.direction }}</td>
+          <td>{{ v.type }}</td>
+          <td>{{ v.time }}</td>
+          <td>{{ v.sector }}</td>
+          <td>{{ v.violation_time }}</td>
+          <td>{{ v.service }}</td>
+          <td>{{ v.violation }}</td>
+          <td>{{ v.description }}</td>
+          <td>{{ v.status }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="11">Нет данных</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <script src="{% static 'rukap/js/script.js' %}"></script>
+</body>
+</html>

@@ -55,7 +55,7 @@
       </thead>
       <tbody>
         {% for v in violations %}
-        <tr data-id="{{ v.id }}">
+          <tr data-id="{{ v.id }}" data-status="{{ v.status }}">
           <td>{{ v.date|date:"d.m.Y" }}</td>
           <td>{{ v.airport }}</td>
           <td>{{ v.flight }}</td>

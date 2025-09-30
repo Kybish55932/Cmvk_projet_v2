@@ -8,4 +8,5 @@ urlpatterns = [
     path("users/", include(("users.urls", "users"), namespace="users")),
     path("inspector/", include("inspector.urls", namespace="inspector")),
     path('supervisor/', include('leadspec.urls')),
+    path("rukap/", include("rukap.urls")),   # 👈 подключение rukap
 ]

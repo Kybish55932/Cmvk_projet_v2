@@ -15,8 +15,8 @@ class LoginUser(LoginView):
     def get_success_url(self):
         # Перенаправляем в зависимости от группы
         user = self.request.user
-        if user.is_in_group('Senior shift'):
-            return reverse_lazy('leadspec:leadspec_list')
+        if user.is_in_group('supervisor'):
+            return reverse_lazy('leadspec:supervisor_page')
         elif user.is_in_group('Inspectors -1') or user.is_in_group('Inspectors -2'):
             return reverse_lazy('inspector:inspector_list')
         elif user.is_superuser or user.is_staff:

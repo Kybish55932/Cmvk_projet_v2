@@ -3,13 +3,13 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Панель инспектора</title>
-  <link rel="stylesheet" href="{% static 'supervisor/css/style.css' %}">
+  <title>Панель начальника служб</title>
+  <link rel="stylesheet" href="{% static 'service/css/style.css' %}">
 </head>
-<body data-username="{{ request.user.get_full_name|default:request.user.username }}">
+<body>
   <!-- Навбар -->
   <div class="navbar">
-    <div class="brand">Панель старшей смены</div>
+    <div class="brand">Панель начальника служб</div>
     <div>
       Добро пожаловать
       <button class="btn">Выйти</button>
@@ -28,32 +28,6 @@
         <label>Дата до</label>
         <input type="date" id="dateTo">
       </div>
-      <div>
-        <label>Служба</label>
-        <select id="service">
-          <option value="">Все</option>
-          <option value="САБ">САБ</option>
-          <option value="САСПОП">САСПОП</option>
-          <option value="СПОиАТ">СПОиАТ</option>
-        </select>
-      </div>
-      <div>
-        <label>Кем выявлено</label>
-        <select id="tehnick">
-          <option value="">Все</option>
-          <option value="Осмонов Нурсултан">Осмонов Нурсултан</option>
-          <option value="Касымова Рима">Касымова Рима</option>
-        </select>
-      </div>
-      <div>
-        <label>Вид нарушения</label>
-        <select id="violationFilter">
-          <option value="">Все</option>
-          <option value="Без пропуска">Без пропуска</option>
-          <option value="Опоздание">Опоздание</option>
-          <option value="Форма одежды">Форма одежды</option>
-        </select>
-      </div>
       <div class="apply-btn">
         <button class="btn btn-success" id="applyFiltersBtn">Применить</button>
       </div>
@@ -61,11 +35,6 @@
         <button class="btn" id="resetFiltersBtn">Сбросить фильтры</button>
       </div>
     </div>
-  </div>
-
-  <!-- Кнопки -->
-  <div class="buttons">
-    <button class="btn btn-success">➕ Добавить нарушение</button>
   </div>
 
   <!-- Таблица -->
@@ -84,39 +53,40 @@
           <th>Служба</th>
           <th>Вид нарушения</th>
           <th>Описание</th>
-          <th>Старший смены</th>
-          <th>Кем выявлено</th>
+          <th>Кто нарушил</th>
+          <th>Принятые меры</th>
+          <th>Комментарии</th>
           <th>Действия</th>
         </tr>
       </thead>
       <tbody>
         {% for v in violations %}
-        <tr data-id="{{ v.id }}">
+        <tr>
           <td>{{ v.date }}</td>
           <td>{{ v.airport }}</td>
           <td>{{ v.flight }}</td>
           <td>{{ v.direction }}</td>
           <td>{{ v.type }}</td>
-          <td>{{ v.time_start }} - {{ v.time_end }}</td>
+          <td>{{ v.time }}</td>
           <td>{{ v.sector }}</td>
-          <td>{{ v.violation_start }} - {{ v.violation_end }}</td>
+          <td>{{ v.violation_time }}</td>
           <td>{{ v.service }}</td>
           <td>{{ v.violation }}</td>
           <td>{{ v.description }}</td>
-          <td>{{ v.supervisor }}</td>
-          <td>{{ v.inspector }}</td>
+          <td>{{ v.offender }}</td>
+          <td>{{ v.measures }}</td>
+          <td>{{ v.comment }}</td>
           <td class="action-btns">
             <button class="edit">✏️</button>
-            <button class="delete">🗑️</button>
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="14">Нет данных</td></tr>
+        <tr><td colspan="15">Нет данных</td></tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
 
-  <script src="{% static 'supervisor/js/script.js' %}"></script>
+  <script src="{% static 'service/js/script.js' %}"></script>
 </body>
 </html>

@@ -1,8 +1,10 @@
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required, user_passes_test
 import json
-from inspector.models import Inspector   # используем модель из приложения inspector
+from inspector.models import Inspector
+
 
 # 📌 API список
 def api_list(request):
@@ -23,7 +25,7 @@ def api_list(request):
             "violation": v.violation,
             "description": v.description,
             "supervisor": v.supervisor,
-            "tehnick": v.inspector,  # сохраняем совместимость
+            "tehnick": v.inspector,  # для совместимости
             "status": v.status,
         }
         for v in Inspector.objects.filter(source="supervisor").order_by("-id")
@@ -35,6 +37,11 @@ def api_list(request):
 @csrf_exempt
 def api_create(request):
     data = json.loads(request.body.decode("utf-8"))
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "Unauthorized"}, status=403)
+
+    full_name = f"{request.user.last_name} {request.user.first_name}".strip() or request.user.username
+
     v = Inspector.objects.create(
         date=data.get("date") or None,
         airport=data.get("airport", ""),
@@ -49,8 +56,9 @@ def api_create(request):
         service=data.get("service", ""),
         violation=data.get("violation", ""),
         description=data.get("description", ""),
-        supervisor=data.get("supervisor", ""),
-        inspector=data.get("tehnick", ""),  # поле inspector
+        supervisor=full_name,   # автозаполнение
+        user=request.user,      # связь с пользователем
+        inspector=data.get("tehnick", ""),
         shift=data.get("shift", ""),
         status=data.get("status", "new"),
         source="supervisor",
@@ -67,13 +75,14 @@ def api_update(request, id):
         return JsonResponse({"error": "Not found"}, status=404)
 
     data = json.loads(request.body.decode("utf-8"))
-    for field in [
+    editable_fields = [
         "date", "airport", "flight", "direction", "type",
         "time_start", "time_end", "sector",
         "violation_start", "violation_end",
         "service", "violation", "description",
         "supervisor", "inspector", "shift", "status"
-    ]:
+    ]
+    for field in editable_fields:
         if field in data:
             setattr(v, field, data[field] or None)
 
@@ -92,13 +101,15 @@ def api_delete(request, id):
         return JsonResponse({"error": "Not found"}, status=404)
 
 
-# 📌 Страница панели supervisor
-def supervisor_page(request):
-    return render(request, "supervisor/supervisor_list.html")
+# 📌 WEB: доступ только для supervisor
+def is_supervisor(user):
+    return user.groups.filter(name="supervisor").exists()
 
-def leadspec_list(request):
-    """Главная страница для старшей смены (supervisor)."""
-    violations = Inspector.objects.all()
+
+@login_required
+@user_passes_test(is_supervisor)
+def supervisor_page(request):
+    violations = Inspector.objects.filter(source="supervisor").order_by("-id")
     return render(request, "supervisor/leadspec_list.html", {
         "violations": violations
     })

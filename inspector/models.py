@@ -2,6 +2,7 @@ from django.db import models
 
 # Create your models here.
 from django.db import models
+from django.conf import settings
 
 STATUS_CHOICES = [
     ("", "Не задано"),
@@ -33,6 +34,7 @@ class Inspector (models.Model):
     inspector = models.CharField(max_length=100, blank=True)
     shift = models.CharField(max_length=50, blank=True)
     status = models.CharField(max_length=50, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, blank=True, default="new")
     source = models.CharField(max_length=20, choices=SOURCE_CHOICES, blank=True, default="supervisor")

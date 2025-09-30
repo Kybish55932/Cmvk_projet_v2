@@ -57,6 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
     data.forEach(v => {
       const tr = document.createElement("tr");
       tr.dataset.id = v.id;
+      tr.dataset.status = v.status || ""; // сохраняем статус в DOM
       if (v.status) tr.classList.add(v.status);
 
       tr.innerHTML = `
@@ -140,6 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
     v.supervisor      = c[13].querySelector("input")?.value || v.supervisor;
     v.inspector       = c[14].querySelector("select")?.value || v.inspector;
     v.shift           = c[15].querySelector("select")?.value || v.shift;
+    v.status          = v.status || "new"; // защитимся от сброса статуса
 
     v.isNew = false;
     editViolation(v);
@@ -162,7 +164,7 @@ document.addEventListener("DOMContentLoaded", () => {
       time_start: "", time_end: "",
       sector: "", violation_start: "", violation_end: "",
       service: "", violation: "",
-      description: "", supervisor: "", inspector: "", shift: "", status: ""
+      description: "", supervisor: "", inspector: "", shift: "", status: "new"
     };
 
     fetch("/inspector/add_violation/", {
@@ -173,12 +175,8 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(res => res.json())
     .then(data => {
       if (data.id) {
-        newObj.id = data.id;
-        newObj.isNew = true;
-        violationsData.unshift(newObj);
-        render();
-        const newRow = tbody.querySelector(`tr[data-id="${newObj.id}"]`);
-        if (newRow) startEditing(newRow);
+        // сразу подтягиваем актуальный список из БД
+        loadViolations();
       }
     });
   }
@@ -188,31 +186,26 @@ document.addEventListener("DOMContentLoaded", () => {
       method: "POST",
       headers: {"Content-Type": "application/json", "X-CSRFToken": getCookie("csrftoken")},
       body: JSON.stringify(v)
-    }).then(() => render());
+    }).then(() => loadViolations()); // <= перезагрузка, а не локальный render()
   }
 
   function deleteViolation(id) {
     fetch(`/inspector/delete_violation/${id}/`, {
       method: "POST",
       headers: {"X-CSRFToken": getCookie("csrftoken")}
-    }).then(() => {
-      violationsData = violationsData.filter(v => v.id != id);
-      render();
-    });
+    }).then(() => loadViolations());
   }
 
   function updateStatus(id, status) {
     fetch(`/inspector/edit_violation/${id}/`, {
       method: "POST",
       headers: {"Content-Type": "application/json", "X-CSRFToken": getCookie("csrftoken")},
-      body: JSON.stringify({status: status})
+      body: JSON.stringify({status})
     })
     .then(res => res.json())
     .then(data => {
       if (data.success) {
-        const v = violationsData.find(x => x.id == id);
-        if (v) v.status = status;
-        render();
+        loadViolations(); // <= ключевой момент
       } else {
         alert("Ошибка при обновлении статуса");
       }
@@ -233,9 +226,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
   addBtn.addEventListener("click", addViolation);
 
-  // ---------------- bootstrap from template ----------------
+  // ---------------- загрузка из API ----------------
+  function loadViolations() {
+    fetch("/inspector/list/") // <= правильный JSON URL
+      .then(r => {
+        if (!r.ok) throw new Error(r.status + " " + r.statusText);
+        return r.json();
+      })
+      .then(data => {
+        violationsData = data;
+        render();
+      })
+      .catch(err => console.error("Ошибка загрузки нарушений:", err));
+  }
+
+  // стартуем из DOM (если сервер уже отрисовал строки),
+  // либо можно сразу дёрнуть loadViolations() — выбери одно:
   (function bootstrapFromDOM(){
     const rows = Array.from(tbody.querySelectorAll("tr"));
+    if (rows.length === 0) { loadViolations(); return; }
+
     violationsData = rows.map(row => ({
       id: row.dataset.id,
       date: row.children[0]?.textContent.trim()||"",
@@ -254,7 +264,7 @@ document.addEventListener("DOMContentLoaded", () => {
       supervisor: row.children[13]?.textContent.trim()||"",
       inspector:  row.children[14]?.textContent.trim()||"",
       shift:      row.children[15]?.textContent.trim()||"",
-      status: row.classList.contains("approved")?"approved":row.classList.contains("rejected")?"rejected":"",
+      status:     row.dataset.status || "",
       isNew: false
     }));
     render();
