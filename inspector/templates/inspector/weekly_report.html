@@ -1,0 +1,85 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Недельный отчёт</title>
+  <link rel="stylesheet" href="{% static 'inspector/css/style.css' %}" />
+</head>
+<body class="weekly-report-page">
+  <div class="navbar">
+    <div class="left-side">
+      <button class="menu-toggle" id="menuToggle" aria-label="Меню">
+        <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+      </button>
+      <div class="brand">Недельный отчёт</div>
+    </div>
+    <div class="right-side">
+      Добро пожаловать, Инспектор
+      <button class="btn">Выйти</button>
+    </div>
+  </div>
+
+  <aside class="sidebar" id="sidebar">
+    <a href="/"> Главная</a>
+    <a href="/inspector/"> Моя страница</a>
+    <a href="/inspector/weekly-report/" class="active"> Недельный отчёт</a>
+  </aside>
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <div class="filters">
+    <h5>Фильтрация</h5>
+    <div class="row">
+      <div>
+        <label>Неделя с</label>
+        <input type="date" id="weekStart" />
+      </div>
+      <div>
+        <label>По</label>
+        <input type="date" id="weekEnd" />
+      </div>
+      <div class="buttons-group">
+        <button class="btn btn-success" id="applyFiltersBtn">Применить</button>
+        <button class="btn" id="resetFiltersBtn">Сбросить</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="buttons">
+    <button class="btn btn-primary" id="sendWeekBtn">Отправить на согласавания</button>
+    <button class="btn btn-success" id="agreeWeekBtn">Согласовать неделю</button>
+  </div>
+
+  <div class="summary">
+    ✅ Подтвержденные: <span id="approvedCount" style="color:green;">0</span> |
+    🤝 Согласованные: <span id="agreedCount" style="color:#0d6efd;">0</span> |
+    📋 Всего: <span id="totalCount" style="color:blue;">0</span>
+  </div>
+
+  <div class="table-container">
+    <table id="weeklyReportTable">
+      <thead>
+        <tr>
+          <th>Дата</th>
+          <th>Аэропорт</th>
+          <th>Рейс</th>
+          <th>Направление</th>
+          <th>Прилет<br>/Вылет</th>
+          <th>Время рейса<br>(с)</th>
+          <th>Время рейса<br>(до)</th>
+          <th>Сектор</th>
+          <th>Нарушение<br>(с)</th>
+          <th>Нарушение<br>(до)</th>
+          <th>Службы</th>
+          <th>Нарушения</th>
+          <th>Описание</th>
+          <th>Статус</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script src="{% static 'inspector/js/weekly_report.js' %}"></script>
+</body>
+</html>

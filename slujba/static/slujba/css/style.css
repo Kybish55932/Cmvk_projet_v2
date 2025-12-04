@@ -1,0 +1,85 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f4f6f9;
+}
+
+/* Навбар */
+.navbar {
+  background: linear-gradient(90deg, #0d6efd, #0a58ca);
+  color: white;
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.navbar .brand { font-weight: bold; font-size: 18px; }
+.navbar .btn { background: white; color: #0d6efd; padding: 6px 12px; border-radius: 5px; border: none; }
+
+/* Фильтры */
+.filters {
+  background: white;
+  border-radius: 8px;
+  padding: 15px;
+  margin: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+.filters .row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: flex-end;
+}
+.filters .row > div {
+  display: flex;
+  flex-direction: column;
+}
+.btn { padding: 7px 14px; border-radius: 5px; border: none; cursor: pointer; }
+.btn-success { background: #28a745; color: white; }
+
+/* Таблица */
+.table-container { overflow-x: auto; margin: 10px; }
+table { width: 100%; border-collapse: collapse; background: white; }
+th, td {
+  border: 1px solid #e6e9ef;
+  padding: 8px;
+  text-align: left;
+  font-size: 14px;
+}
+thead th {
+  position: sticky;
+  top: 0;
+  background: #0d6efd;
+  color: white;
+  z-index: 1;
+}
+
+/* Ширины */
+th:nth-child(11), td:nth-child(11) { min-width: 250px; }
+th:nth-child(12), td:nth-child(12) { min-width: 180px; white-space: nowrap; }
+th:nth-child(13), td:nth-child(13) { min-width: 180px; }
+th:nth-child(14), td:nth-child(14) { min-width: 200px; }
+
+/* Текст */
+textarea.desc-text {
+  width: 100%;
+  min-height: 40px;
+  border: none;
+  background: transparent;
+  resize: vertical;
+  overflow: hidden;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+/* Кнопки */
+.action-btns button {
+  margin-right: 5px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+.action-btns .edit { background: #f0f0f0; }
+.action-btns .save { background: #d4edda; border: 1px solid #b2dfbb; }
+.action-btns .cancel { background: #f8d7da; border: 1px solid #f5c2c7; }

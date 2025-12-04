@@ -1,0 +1,288 @@
+<!--{% load static %}-->
+<!--<!DOCTYPE html>-->
+<!--<html lang="ru">-->
+<!--<head>-->
+<!--  <meta charset="UTF-8">-->
+<!--  <title>Подтверждённые нарушения</title>-->
+<!--  <link rel="stylesheet" href="{% static 'inspector/css/style.css' %}">-->
+<!--</head>-->
+<!--<body>-->
+<!--  &lt;!&ndash; Навбар &ndash;&gt;-->
+<!--  <div class="navbar">-->
+<!--    <div class="brand">Подтверждённые нарушения</div>-->
+
+
+<!--    <div>-->
+<!--      Добро пожаловать, Инспектор-->
+<!--      <button class="btn">Выйти</button>-->
+<!--    </div>-->
+<!--  </div>-->
+
+<!--  &lt;!&ndash; Фильтры &ndash;&gt;-->
+<!--  <div class="filters">-->
+<!--    <h5>Фильтрация</h5>-->
+<!--    <div class="row">-->
+<!--      <div>-->
+<!--        <label>Дата от</label>-->
+<!--        <input type="date" id="dateFrom">-->
+<!--      </div>-->
+<!--      <div>-->
+<!--        <label>Дата до</label>-->
+<!--        <input type="date" id="dateTo">-->
+<!--      </div>-->
+<!--      <div>-->
+<!--        <label>Аэропорт</label>-->
+<!--        <select id="airport">-->
+<!--          <option value="">Все</option>-->
+<!--          <option value="Манас">Манас</option>-->
+<!--          <option value="Ош">Ош</option>-->
+<!--        </select>-->
+<!--      </div>-->
+<!--      <div>-->
+<!--        <label>Служба</label>-->
+<!--        <select id="service">-->
+<!--          <option value="">Все</option>-->
+<!--          <option value="САБ">САБ</option>-->
+<!--          <option value="САСПОП">САСПОП</option>-->
+<!--          <option value="СПОиАТ">СПОиАТ</option>-->
+<!--          &lt;!&ndash; остальные службы &ndash;&gt;-->
+<!--        </select>-->
+
+
+
+<!--      </div>-->
+<!--      <div>-->
+<!--          <label>Вид нарушения</label>-->
+<!--          <select id="violationFilter">-->
+<!--            <option value="">Все</option>-->
+<!--            <option value="Без пропуска">Без пропуска</option>-->
+<!--            <option value="Опоздание">Опоздание</option>-->
+<!--            <option value="Форма одежды">Форма одежды</option>-->
+<!--          </select>-->
+<!--      </div>-->
+<!--      <div class="apply-btn">-->
+<!--        <button class="btn btn-success" id="applyFiltersBtn">Применить</button>-->
+<!--      </div>-->
+<!--  <button id="exportPdfBtn" class="btn btn-danger">Скачать PDF</button>-->
+
+<!--      <div>-->
+<!--        <button class="btn" id="resetFiltersBtn">Сбросить фильтры</button>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--  </div>-->
+
+<!--  &lt;!&ndash; Таблица &ndash;&gt;-->
+<!--  <div class="table-container">-->
+<!--    <table id="confirmedViolationsTable">-->
+<!--      <thead>-->
+<!--        <tr>-->
+<!--          <th>Дата</th>-->
+<!--          <th>Аэропорт</th>-->
+<!--          <th>Рейс</th>-->
+<!--          <th>Направление</th>-->
+<!--          <th>Прилет/Вылет</th>-->
+<!--          <th>Время рейса</th>-->
+<!--          <th>Сектор-стоянка</th>-->
+<!--          <th>Время нарушения</th>-->
+<!--          <th>Служба</th>-->
+<!--          <th>Вид нарушения</th>-->
+<!--          <th>Описание</th>-->
+<!--          <th>ФИО</th>-->
+<!--          <th>Принятые меры</th>-->
+<!--        </tr>-->
+<!--      </thead>-->
+<!--      <tbody>-->
+<!--        {% for v in violations %}-->
+<!--        <tr>-->
+<!--          <td>{{ v.date }}</td>-->
+<!--          <td>{{ v.airport }}</td>-->
+<!--          <td>{{ v.flight }}</td>-->
+<!--          <td>{{ v.direction }}</td>-->
+<!--          <td>{{ v.type }}</td>-->
+<!--          <td>{{ v.time }}</td>-->
+<!--          <td>{{ v.sector }}</td>-->
+<!--          <td>{{ v.violation_time }}</td>-->
+<!--          <td>{{ v.service }}</td>-->
+<!--          <td>{{ v.violation }}</td>-->
+<!--          <td>{{ v.description }}</td>-->
+<!--          <td>{{ v.fio }}</td>-->
+<!--          <td>{{ v.measures }}</td>-->
+<!--        </tr>-->
+<!--        {% endfor %}-->
+<!--      </tbody>-->
+<!--    </table>-->
+<!--  </div>-->
+
+<!--  <script src="{% static 'inspector/js/script.js' %}"></script>-->
+<!--</body>-->
+<!--</html>-->
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Подтверждённые нарушения</title>
+  <link rel="stylesheet" href="{% static 'inspector/css/style.css' %}">
+</head>
+<body>
+  <!-- Навбар -->
+  <div class="navbar">
+    <div class="brand">Подтверждённые нарушения</div>
+    <div>
+      Добро пожаловать, Инспектор
+      <button class="btn">Выйти</button>
+    </div>
+  </div>
+
+  <!-- Фильтры -->
+  <div class="filters">
+    <h5>Фильтрация</h5>
+    <div class="row">
+      <div>
+        <label>Дата от</label>
+        <input type="date" id="dateFrom">
+      </div>
+      <div>
+        <label>Дата до</label>
+        <input type="date" id="dateTo">
+      </div>
+      <div>
+        <label>Аэропорт</label>
+        <select id="airport">
+          <option value="">Все</option>
+          <option value="Манас">Манас</option>
+          <option value="Ош">Ош</option>
+        </select>
+      </div>
+      <div>
+        <label>Служба</label>
+        <select id="service">
+          <option value="">Все</option>
+          <option value="САБ">САБ</option>
+          <option value="САСПОП">САСПОП</option>
+          <option value="СПОиАТ">СПОиАТ</option>
+          <!-- остальные службы -->
+        </select>
+      </div>
+      <div>
+        <label>Вид нарушения</label>
+        <select id="violationFilter">
+          <option value="">Все</option>
+          <option value="Без пропуска">Без пропуска</option>
+          <option value="Опоздание">Опоздание</option>
+          <option value="Форма одежды">Форма одежды</option>
+        </select>
+      </div>
+
+      <div class="apply-btn">
+        <button class="btn btn-success" id="applyFiltersBtn">Применить</button>
+      </div>
+      <button id="exportPdfBtn" class="btn btn-danger">Скачать PDF</button>
+      <div>
+        <button class="btn" id="resetFiltersBtn">Сбросить фильтры</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Таблица -->
+  <div class="table-container">
+    <table id="confirmedViolationsTable">
+      <thead>
+        <tr>
+          <th>Дата</th>
+          <th>Аэропорт</th>
+          <th>Рейс</th>
+          <th>Направление</th>
+          <th>Прилет/Вылет</th>
+          <th>Время рейса</th>
+          <th>Сектор-стоянка</th>
+          <th>Время нарушения</th>
+          <th>Служба</th>
+          <th>Вид нарушения</th>
+          <th>Описание</th>
+          <th>ФИО</th>
+          <th>Принятые меры</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- строки будут подгружаться через JS -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    async function loadViolations() {
+      const params = new URLSearchParams();
+
+      const dateFrom = document.getElementById("dateFrom").value;
+      const dateTo = document.getElementById("dateTo").value;
+      const airport = document.getElementById("airport").value;
+      const service = document.getElementById("service").value;
+      const violation = document.getElementById("violationFilter").value;
+
+      if (dateFrom) params.append("dateFrom", dateFrom);
+      if (dateTo) params.append("dateTo", dateTo);
+      if (airport) params.append("airport", airport);
+      if (service) params.append("service", service);
+      if (violation) params.append("violation", violation);
+
+      // Берем только approved нарушения
+      params.append("status", "approved");
+
+      const response = await fetch(`/api/violations/?${params.toString()}`);
+      const data = await response.json();
+
+      const tbody = document.querySelector("#confirmedViolationsTable tbody");
+      tbody.innerHTML = "";
+
+      data.forEach(v => {
+        const row = `
+          <tr>
+            <td>${v.date || ""}</td>
+            <td>${v.airport || ""}</td>
+            <td>${v.flight || ""}</td>
+            <td>${v.direction || ""}</td>
+            <td>${v.type || ""}</td>
+            <td>${v.time || ""}</td>
+            <td>${v.sector || ""}</td>
+            <td>${v.violation_time || ""}</td>
+            <td>${v.service || ""}</td>
+            <td>${v.violation || ""}</td>
+            <td>${v.description || ""}</td>
+            <td>${v.fio || ""}</td>
+            <td>${v.measures || ""}</td>
+          </tr>`;
+        tbody.insertAdjacentHTML("beforeend", row);
+      });
+    }
+
+    document.getElementById("applyFiltersBtn").addEventListener("click", loadViolations);
+    document.getElementById("resetFiltersBtn").addEventListener("click", () => {
+      document.querySelectorAll(".filters select, .filters input").forEach(el => el.value = "");
+      loadViolations();
+    });
+
+    document.getElementById("exportPdfBtn").addEventListener("click", () => {
+      const params = new URLSearchParams();
+
+      const dateFrom = document.getElementById("dateFrom").value;
+      const dateTo = document.getElementById("dateTo").value;
+      const airport = document.getElementById("airport").value;
+      const service = document.getElementById("service").value;
+      const violation = document.getElementById("violationFilter").value;
+
+      if (dateFrom) params.append("dateFrom", dateFrom);
+      if (dateTo) params.append("dateTo", dateTo);
+      if (airport) params.append("airport", airport);
+      if (service) params.append("service", service);
+      if (violation) params.append("violation", violation);
+
+      // Переход на PDF с фильтрами
+      window.location.href = `/inspector/confirmed/pdf/?${params.toString()}`;
+    });
+
+    // Загружаем данные при первом открытии
+    loadViolations();
+  </script>
+</body>
+</html>

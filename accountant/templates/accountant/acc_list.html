@@ -1,0 +1,69 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Панель бухгалтера</title>
+  <link rel="stylesheet" href="{% static 'accountant/css/style.css' %}">
+</head>
+<body>
+  <div class="navbar">
+    <div class="brand">Панель бухгалтера</div>
+    <div>Добро пожаловать, {{ request.user.username }}</div>
+  </div>
+
+  <!-- Фильтры -->
+  <div class="filters">
+    <div>
+      <label>Дата от:</label>
+      <input type="date" id="dateFrom">
+    </div>
+    <div>
+      <label>Дата до:</label>
+      <input type="date" id="dateTo">
+    </div>
+
+    <div>
+      <label>Аэропорт:</label>
+      <select id="airportFilter">
+        <option value="">Все</option>
+      </select>
+    </div>
+
+    <div>
+      <label>Служба:</label>
+      <select id="serviceFilter">
+        <option value="">Все</option>
+      </select>
+    </div>
+
+    <div>
+      <label>Кто нарушил:</label>
+      <input type="text" id="offenderFilter" placeholder="Введите имя...">
+    </div>
+
+    <button id="applyFiltersBtn" class="btn btn-success">Применить</button>
+    <button id="resetFiltersBtn" class="btn">Сбросить</button>
+    <button id="exportExcelBtn" class="btn btn-success">Экспорт в Excel</button>
+  </div>
+
+  <!-- Таблица -->
+  <div class="table-container">
+    <table id="violationsTable">
+      <thead>
+        <tr>
+          <th>Дата</th>
+          <th>Аэропорт</th>
+          <th>Служба</th>
+          <th>Кто нарушил</th>
+          <th>Принятые меры</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.19.3/xlsx.full.min.js"></script>
+  <script src="{% static 'accountant/js/script.js' %}"></script>
+</body>
+</html>

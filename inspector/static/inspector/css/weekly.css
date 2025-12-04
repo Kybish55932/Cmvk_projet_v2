@@ -1,0 +1,144 @@
+/* ===== WEEKLY TABLE (фикс + переносы + обрезка описания) ===== */
+  #weeklyTable { table-layout: fixed; width: 100%; }
+  #weeklyTable th, #weeklyTable td { white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
+  #weeklyTable td.desc {
+    max-width: 600px;           /* подбери под макет */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;      /* 3 строки */
+    overflow: hidden;
+  }
+
+  /* ===== base ===== */
+  body{margin:0;font-family:Arial, sans-serif;background:#f4f6f9}
+
+  /* ===== NAVBAR ===== */
+  .navbar{
+    background:linear-gradient(90deg,#0d6efd,#0a58ca);
+    color:#fff;padding:12px 20px;display:flex;justify-content:space-between;align-items:center
+  }
+  .navbar .left-side{display:flex;align-items:center;gap:10px}
+  .navbar .right-side{display:flex;align-items:center;gap:10px}
+  .brand{font-weight:700;font-size:18px}
+  .navbar .btn{background:#fff;color:#0d6efd;padding:6px 12px;border-radius:5px;border:none;cursor:pointer}
+  .menu-toggle{display:inline-flex;flex-direction:column;gap:4px;background:transparent;border:none;cursor:pointer;padding:4px}
+  .menu-toggle .bar{width:20px;height:2px;background:#fff;display:block}
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -240px;
+    width: 240px;
+    height: 100vh;
+    background: linear-gradient(180deg, #0d6efd, #0a58ca);
+    color: white;
+    box-shadow: 2px 0 6px rgba(0,0,0,.25);
+    padding-top: 60px;
+    display: flex;
+    flex-direction: column;
+    transition: left 0.25s ease;
+    z-index: 1200;
+  }
+  .sidebar.open { left: 0; }
+  .sidebar-header { text-align: center; padding: 10px 0 20px; border-bottom: 1px solid rgba(255,255,255,0.2); }
+  .sidebar h3 { margin: 0; font-size: 16px; font-weight: bold; }
+  .sidebar a {
+    padding: 12px 20px; text-decoration: none; color: white; font-size: 15px;
+    display: flex; align-items: center; gap: 8px; transition: background 0.2s;
+  }
+  .sidebar a:hover { background: rgba(255,255,255,0.2); }
+
+  /* BACKDROP */
+  .sidebar-backdrop {
+    position: fixed; inset: 0; background: rgba(0,0,0,.25); opacity: 0; pointer-events: none;
+    transition: opacity .2s; z-index: 1150;
+  }
+  .sidebar-backdrop.show { opacity: 1; pointer-events: auto; }
+
+  /* ===== FILTERS ===== */
+  .filters{background:#fff;border-radius:8px;padding:15px;margin:10px;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+  .filters .row{display:flex;flex-wrap:wrap;gap:15px}
+  .filters .row>div{display:flex;flex-direction:column;gap:4px;flex:0 0 auto}
+  .filters input[type=date],.filters select,.ms-trigger{
+    width:180px;max-width:200px;padding:6px 8px;border:1px solid #cfd6e4;border-radius:6px;background:#fff;font-size:14px;box-sizing:border-box}
+  .filters .buttons-group{display:flex;gap:10px;align-items:flex-end}
+
+  /* ===== BUTTONS ===== */
+  .buttons{display:flex;justify-content:flex-start;margin:10px}
+  .btn{padding:7px 14px;border-radius:5px;border:none;cursor:pointer}
+  .btn-success{background:#28a745;color:#fff}
+
+  /* ===== SUMMARY ===== */
+  .summary{font-size:14px;color:#333;margin:0 10px 5px}
+
+  /* ===== TABLE (общие правила) ===== */
+  .table-container{overflow-x:auto;margin:10px;background:#fff;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.1)}
+  table{width:150%;min-width:1200px;border-collapse:collapse}
+  th,td{border:1px solid #e6e9ef;padding:6px;text-align:center;font-size:14px;vertical-align:middle;white-space:normal;word-wrap:break-word}
+  thead th{position:sticky;top:0;background:#0d6efd;color:#fff;z-index:1}
+  tbody tr:hover{background:#eef7ff}
+
+  /* widths (для основной таблицы нарушений; weeklyTable это не затронет) */
+  #violationsTable th:nth-child(4),#violationsTable td:nth-child(4),
+  #violationsTable th:nth-child(5),#violationsTable td:nth-child(5){width:70px;line-height:1.2}
+  #violationsTable th:nth-child(6),#violationsTable td:nth-child(6),
+  #violationsTable th:nth-child(7),#violationsTable td:nth-child(7),
+  #violationsTable th:nth-child(9),#violationsTable td:nth-child(9),
+  #violationsTable th:nth-child(10),#violationsTable td:nth-child(10){width:90px}
+  #violationsTable th:nth-child(8),#violationsTable td:nth-child(8){width:80px}
+  #violationsTable th:nth-child(13),#violationsTable td:nth-child(13){width:260px}
+  #violationsTable th:nth-child(17),#violationsTable td:nth-child(17),
+  #violationsTable th:nth-child(18),#violationsTable td:nth-child(18){width:90px}
+
+  /* states */
+  tr.rejected{background:#e0e0e0!important;color:#555}
+  tr.approved{background:#fff!important;color:#000}
+
+  /* textareas */
+  .desc-text,.desc-edit{
+    width:100%;min-height:40px;resize:vertical;border:1px solid #ccc;background:#fff;
+    padding:5px;border-radius:4px;font-size:14px;font-family:inherit;box-sizing:border-box
+  }
+
+  /* custom multiselect */
+  .ms{position:relative;display:inline-block}
+  .ms-trigger{padding:6px 10px;border:1px solid #cfd6e4;border-radius:6px;background:#fff;cursor:pointer;min-width:160px}
+  .ms-dropdown{position:absolute;display:none;top:calc(100% + 6px);left:0;min-width:220px;max-height:240px;overflow:auto;background:#fff;border:1px solid #cfd6e4;border-radius:8px;box-shadow:0 8px 20px rgba(0,0,0,.08);padding:8px;z-index:1500}
+  .ms-dropdown.open{display:block}
+  .ms-opt{display:flex;align-items:center;gap:8px;padding:4px 2px}
+
+  /* action buttons */
+  .action-btns button{margin:2px;padding:4px 8px;border-radius:4px;border:none;cursor:pointer;font-size:14px}
+  .action-btns .approve{background:#28a745;color:#fff}
+  .action-btns .reject{background:#dc3545;color:#fff}
+  .action-btns .edit{background:#f0f0f0;color:#333;border:1px solid #d0d0d0}
+  .action-btns .delete{background:#fff;color:#b00;border:1px solid #f1c0c0}
+
+  /* week filter */
+  .week-filter { display:flex; align-items:center; gap:8px; margin-top:5px; }
+  .btn-week { background-color:#e9ecef; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; transition:background .2s; }
+  .btn-week:hover { background-color:#d0d6dc; }
+  #weekLabel {
+    font-weight:500; background:white; border:1px solid #ccc; padding:4px 10px;
+    border-radius:6px; min-width:160px; text-align:center;
+  }
+ /* ===== Описание шире и с раскрытием ===== */
+td.desc-cell {
+  max-width: 400px;              /* ✨ в 2 раза шире обычных */
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;         /* показывать только 3 строки */
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* при раскрытии — показываем весь текст */
+td.desc-cell.expanded {
+  -webkit-line-clamp: unset;
+  background: #f9f9ff;
+  box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+}

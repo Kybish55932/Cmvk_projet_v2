@@ -2,33 +2,94 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Панель инспектора</title>
-  <link rel="stylesheet" href="{% static 'inspector/css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'inspector/css/style.css' %}" />
 </head>
 <body>
-  <!-- Навбар -->
-  <div class="navbar">
+  <!-- NAVBAR -->
+<div class="navbar">
+  <div class="left-side">
+    <button class="menu-toggle" id="menuToggle" aria-label="Меню">
+      <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+    </button>
     <div class="brand">Панель инспектора</div>
-    <div>
-      Добро пожаловать, Инспектор
-      <button class="btn">Выйти</button>
+  </div>
+  <div class="right-side">
+    Добро пожаловать, Инспектор
+    <button class="btn">Выйти</button>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <a href="/"> Главная</a>
+  <a href="/inspector/"> Моя страница</a>
+  <a href="/inspector/weekly-report/"> Недельный отчёт</a>
+</aside>
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <!-- Фильтры -->
+  <div class="filters">
+    <h5>Фильтрация</h5>
+    <div class="row">
+      <div>
+        <label>Дата от</label>
+        <input type="date" id="dateFrom" />
+      </div>
+      <div>
+        <label>Дата до</label>
+        <input type="date" id="dateTo" />
+      </div>
+      <div>
+  <label>Аэропорт</label>
+  <select id="airport" multiple></select>
+</div>
+
+<div>
+  <label>Служба</label>
+  <select id="service" multiple></select>
+</div>
+      <div>
+        <label>Кем выявлено</label>
+        <!-- ВАЖНО: оставь пустым — JS заполнит всем списком + «Другие» ДО инициализации мультиселекта -->
+        <select id="inspector" multiple></select>
+      </div>
+
+      <div>
+        <label>Вид нарушения</label>
+        <select id="violationFilter" multiple>
+          <option value="АБ">АБ</option>
+          <option value="БП">БП</option>
+          <option value="Форма одежды">Форма одежды</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Смена</label>
+        <select id="shiftFilter" multiple>
+          <option value="1">1</option><option value="2">2</option>
+          <option value="3">3</option><option value="4">4</option>
+        </select>
+      </div>
+
+      <div class="buttons-group">
+        <button class="btn btn-success" id="applyFiltersBtn">Применить</button>
+        <button class="btn" id="resetFiltersBtn">Сбросить</button>
+      </div>
     </div>
   </div>
 
-  <!-- Кнопки -->
   <div class="buttons">
-    <button class="btn btn-success">➕ Добавить нарушение</button>
+    <button class="btn btn-success" id="addViolationBtn">➕ Добавить нарушение</button>
   </div>
 
-  <!-- Подсчет -->
   <div class="summary">
     ✅ Подтвержденные: <span id="confirmed" style="color:green;">0</span> |
     ❌ Отклоненные: <span id="rejected" style="color:red;">0</span> |
-    📋 Всего: <span id="total" style="color:blue;">{{ violations|length }}</span>
+    📋 Всего: <span id="total" style="color:blue;">0</span>
   </div>
 
-  <!-- Таблица -->
   <div class="table-container">
     <table id="violationsTable">
       <thead>
@@ -37,12 +98,12 @@
           <th>Аэропорт</th>
           <th>Рейс</th>
           <th>Направление</th>
-          <th>Прилет/Вылет</th>
-          <th>Время рейса (с)</th>
-          <th>Время рейса (до)</th>
-          <th>Сектор-стоянка</th>
-          <th>Время нарушения (с)</th>
-          <th>Время нарушения (до)</th>
+          <th>Прилет<br>/Вылет</th>
+          <th>Время рейса<br>(с)</th>
+          <th>Время рейса<br>(до)</th>
+          <th>Сектор</th>
+          <th>Нарушение<br>(с)</th>
+          <th>Нарушение<br>(до)</th>
           <th>Служба</th>
           <th>Вид нарушения</th>
           <th>Описание</th>
@@ -53,36 +114,7 @@
           <th>Действия</th>
         </tr>
       </thead>
-      <tbody>
-        {% for v in violations %}
-          <tr data-id="{{ v.id }}" data-status="{{ v.status }}">
-          <td>{{ v.date|date:"d.m.Y" }}</td>
-          <td>{{ v.airport }}</td>
-          <td>{{ v.flight }}</td>
-          <td>{{ v.direction }}</td>
-          <td>{{ v.type }}</td>
-          <td>{{ v.time_start|time:"H:i" }}</td>
-          <td>{{ v.time_end|time:"H:i" }}</td>
-          <td>{{ v.sector }}</td>
-          <td>{{ v.violation_start|time:"H:i" }}</td>
-          <td>{{ v.violation_end|time:"H:i" }}</td>
-          <td>{{ v.service }}</td>
-          <td>{{ v.violation }}</td>
-          <td>{{ v.description }}</td>
-          <td>{{ v.supervisor }}</td>
-          <td>{{ v.inspector }}</td>
-          <td>{{ v.shift }}</td>
-          <td class="action-btns">
-            <button class="approve">✔</button>
-            <button class="reject">✖</button>
-          </td>
-          <td class="action-btns">
-            <button class="edit">✏️</button>
-            <button class="delete">🗑️</button>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
+      <tbody></tbody>
     </table>
   </div>
 

@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Панель начальника служб</title>
-  <link rel="stylesheet" href="{% static 'service/css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'slujba/css/style.css' %}">
 </head>
 <body>
   <!-- Навбар -->
@@ -28,11 +28,18 @@
         <label>Дата до</label>
         <input type="date" id="dateTo">
       </div>
+      <div>
+        <label>Кто нарушил</label>
+        <input type="text" id="offenderFilter" placeholder="Введите имя...">
+      </div>
       <div class="apply-btn">
         <button class="btn btn-success" id="applyFiltersBtn">Применить</button>
       </div>
       <div>
-        <button class="btn" id="resetFiltersBtn">Сбросить фильтры</button>
+        <button class="btn" id="resetFiltersBtn">Сбросить</button>
+      </div>
+      <div style="margin-left:auto;">
+        <button class="btn btn-success" id="exportExcelBtn" type="button">Экспорт в Excel</button>
       </div>
     </div>
   </div>
@@ -48,7 +55,7 @@
           <th>Направление</th>
           <th>Прилет/Вылет</th>
           <th>Время рейса</th>
-          <th>Сектор-стоянка</th>
+          <th>Сектор</th>
           <th>Время нарушения</th>
           <th>Служба</th>
           <th>Вид нарушения</th>
@@ -61,15 +68,23 @@
       </thead>
       <tbody>
         {% for v in violations %}
-        <tr>
+        <tr data-id="{{ v.id }}">
           <td>{{ v.date }}</td>
           <td>{{ v.airport }}</td>
           <td>{{ v.flight }}</td>
           <td>{{ v.direction }}</td>
           <td>{{ v.type }}</td>
-          <td>{{ v.time }}</td>
+          <td>
+            {% if v.time_start or v.time_end %}
+              {{ v.time_start|default:"" }} - {{ v.time_end|default:"" }}
+            {% else %}—{% endif %}
+          </td>
           <td>{{ v.sector }}</td>
-          <td>{{ v.violation_time }}</td>
+          <td>
+            {% if v.violation_start or v.violation_end %}
+              {{ v.violation_start|default:"" }} - {{ v.violation_end|default:"" }}
+            {% else %}—{% endif %}
+          </td>
           <td>{{ v.service }}</td>
           <td>{{ v.violation }}</td>
           <td>{{ v.description }}</td>
@@ -78,6 +93,8 @@
           <td>{{ v.comment }}</td>
           <td class="action-btns">
             <button class="edit">✏️</button>
+            <button class="save" style="display:none;">💾</button>
+            <button class="cancel" style="display:none;">❌</button>
           </td>
         </tr>
         {% empty %}
@@ -87,6 +104,7 @@
     </table>
   </div>
 
-  <script src="{% static 'service/js/script.js' %}"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.19.3/xlsx.full.min.js" defer></script>
+  <script src="{% static 'slujba/js/script.js' %}"></script>
 </body>
 </html>

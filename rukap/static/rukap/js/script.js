@@ -1,159 +1,143 @@
+// static/rukap/js/script.js
 document.addEventListener("DOMContentLoaded", () => {
-  const tbody = document.querySelector("#violationsTable tbody");
-  const weekLabel = document.getElementById("weekLabel");
-  const prevBtn = document.getElementById("prevWeekBtn");
-  const nextBtn = document.getElementById("nextWeekBtn");
-  const currentBtn = document.getElementById("currentWeekBtn");
-  const approveBtn = document.getElementById("approveBtn"); // если кнопка присутствует
+  const tbody       = document.querySelector("#violationsTable tbody");
+  const weekLabel   = document.getElementById("weekLabel");
+  const prevBtn     = document.getElementById("prevWeekBtn");
+  const nextBtn     = document.getElementById("nextWeekBtn");
+  const currentBtn  = document.getElementById("currentWeekBtn");
+  const approveAllBtn = document.getElementById("approveAllBtn");
 
-  // Смещение недель относительно ТЕКУЩЕЙ недели (0 — текущая, -1 — прошлая)
-  let currentWeekOffset = -1; // по умолчанию — прошлая неделя
+  // По умолчанию — прошлая неделя
+  let currentWeekOffset = -1;
+  let currentItems = []; // кэш загруженной недели (массив объектов)
 
-  // --- Утилиты для дат ---
-
-  // Парсинг даты из ячейки: поддерживает "YYYY-MM-DD" и "DD.MM.YYYY"
-  function parseCellDate(text) {
-    if (!text) return null;
-    const s = text.trim();
-
-    // Формат YYYY-MM-DD
-    let m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-    if (m) {
-      const y = Number(m[1]), mo = Number(m[2]) - 1, d = Number(m[3]);
-      const dt = new Date(y, mo, d); // локальная дата (00:00)
-      return isNaN(dt.getTime()) ? null : dt;
-    }
-
-    // Формат DD.MM.YYYY
-    m = s.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
-    if (m) {
-      const d = Number(m[1]), mo = Number(m[2]) - 1, y = Number(m[3]);
-      const dt = new Date(y, mo, d);
-      return isNaN(dt.getTime()) ? null : dt;
-    }
-
-    // Последняя попытка — стандартный парсер (может быть ненадежным в некоторых браузерах)
-    const dt = new Date(s);
-    return isNaN(dt.getTime()) ? null : dt;
-  }
-
-  // Возвращает понедельник/воскресенье недели со смещением offset (0 — текущая)
-  function getWeekRange(offset = 0) {
-    const now = new Date();
-    now.setHours(0, 0, 0, 0);
-
-    // В JS: getDay(): вс = 0, пн = 1, ... сб = 6
-    // Нам нужен понедельник. Сделаем св = 7
-    const day = now.getDay() === 0 ? 7 : now.getDay();
-
-    // Понедельник текущей недели
-    const monday = new Date(now);
-    monday.setDate(now.getDate() - day + 1 + offset * 7);
-    monday.setHours(0, 0, 0, 0);
-
-    // Воскресенье текущей недели
-    const sunday = new Date(monday);
-    sunday.setDate(monday.getDate() + 6);
-    sunday.setHours(23, 59, 59, 999);
-
-    return { from: monday, to: sunday };
-  }
-
-  // Формат в лейбле недели: DD.MM.YYYY
-  function formatDDMMYYYY(d) {
-    const dd = String(d.getDate()).padStart(2, "0");
-    const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const fmtDate = (iso) => {
+    if (!iso) return "";
+    const d = new Date(iso);
+    const dd = String(d.getDate()).padStart(2,"0");
+    const mm = String(d.getMonth()+1).padStart(2,"0");
     const yyyy = d.getFullYear();
     return `${dd}.${mm}.${yyyy}`;
+  };
+
+  const badge = (status) => {
+    const s = (status || "").toLowerCase();
+    if (s === "approved") return "✅ <span style='color:green'>approved</span>";
+    if (s === "sent")     return "⏳ <span style='color:#1e7fd9'>sent</span>";
+    if (s === "rejected") return "❌ <span style='color:#d91e1e'>rejected</span>";
+    if (s === "agreed")   return "✅ <span style='color:green'>agreed</span>";
+    return (status || "");
+  };
+
+  function render(items, fromISO, toISO) {
+    // Заголовок недели
+    weekLabel.textContent = `${fmtDate(fromISO)} - ${fmtDate(toISO)}`;
+
+    // Таблица
+    tbody.innerHTML = "";
+    if (!items.length) {
+      tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; opacity:.7;">Нет данных</td></tr>`;
+      return;
+    }
+
+    const rowsHtml = items.map(v => {
+      const svc = Array.isArray(v.services) ? v.services.join(", ") : (v.service || "");
+      const timeRange = `${v.time_start || ""}${v.time_start || v.time_end ? " - " : ""}${v.time_end || ""}`;
+      const violRange = `${v.violation_start || ""}${v.violation_start || v.violation_end ? " - " : ""}${v.violation_end || ""}`;
+      return `
+        <tr data-id="${v.id}">
+          <td>${fmtDate(v.date)}</td>
+          <td>${escapeHtml(v.airport || "")}</td>
+          <td>${escapeHtml(v.flight || "")}</td>
+          <td>${escapeHtml(v.direction || "")}</td>
+          <td>${escapeHtml(v.type || "")}</td>
+          <td>${escapeHtml(timeRange)}</td>
+          <td>${escapeHtml(v.sector || "")}</td>
+          <td>${escapeHtml(violRange)}</td>
+          <td>${escapeHtml(svc)}</td>
+          <td>${escapeHtml(v.violation || "")}</td>
+          <td>${escapeHtml(v.description || "")}</td>
+          <td>${badge(v.status)}</td>
+        </tr>`;
+    }).join("");
+
+    tbody.innerHTML = rowsHtml;
   }
 
-  // Обновление недели и фильтра
-  function updateWeek(offset) {
+  function escapeHtml(s) {
+    if (s === 0 || s) {
+      return String(s)
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;");
+    }
+    return "";
+  }
+
+  function loadWeek(offset) {
     currentWeekOffset = offset;
-    const { from, to } = getWeekRange(offset);
-    weekLabel.textContent = `${formatDDMMYYYY(from)} - ${formatDDMMYYYY(to)}`;
-    filterByWeek(from, to);
-  }
-  // массовое согласование
-  approveAllBtn.addEventListener("click", () => {
-    Array.from(tbody.querySelectorAll("tr")).forEach(row => {
-      if (row.style.display !== "none") {
-        const statusCell = row.querySelector("td:last-child");
-        if (statusCell) {
-          statusCell.textContent = "Согласовано";
-          statusCell.style.color = "green";
-        }
-      }
-    });
-  });
-  // Фильтрация строк по диапазону
-  function filterByWeek(from, to) {
-    const rows = Array.from(tbody.querySelectorAll("tr"));
-    rows.forEach(row => {
-      // Дата всегда в первой колонке (индекс 0)
-      const cell = row.children[0];
-      if (!cell) { row.style.display = ""; return; }
-
-      const dateText = cell.textContent || cell.innerText || "";
-      const rowDate = parseCellDate(dateText);
-
-      // Если дату распарсить не удалось — показываем строку (чтобы не потерять данные)
-      if (!rowDate) { row.style.display = ""; return; }
-
-      if (rowDate >= from && rowDate <= to) {
-        row.style.display = "";
-      } else {
-        row.style.display = "none";
-      }
-    });
-  }
-
-  // --- Кнопки переключения недель ---
-  prevBtn?.addEventListener("click", () => updateWeek(currentWeekOffset - 1));
-  nextBtn?.addEventListener("click", () => updateWeek(currentWeekOffset + 1));
-  // «Последняя неделя» — всегда offset = -1
-  currentBtn?.addEventListener("click", () => updateWeek(-1));
-
-  // --- Кнопка «Согласовать» ---
-  approveBtn?.addEventListener("click", () => {
-    // здесь можно вызвать ваш backend для подтверждения выбранной недели
-    alert("Данные за выбранную неделю отмечены как согласованные ✅");
-  });
-
-  // ИНИЦИАЛИЗАЦИЯ: сразу показываем ПРОШЛУЮ неделю
-  // Важно: вызываем после того, как DOM-таблица уже на странице
-  updateWeek(-1);
-});
-
-approveAllBtn?.addEventListener("click", () => {
-  const ids = [];
-  tbody.querySelectorAll("tr").forEach(row => {
-    if (row.style.display !== "none") {
-      ids.push(row.dataset.id); // берем id из атрибута строки
-    }
-  });
-
-  fetch("/rukap/agreed/", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-CSRFToken": getCookie("csrftoken"),
-    },
-    body: JSON.stringify({ ids })
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.success) {
-      tbody.querySelectorAll("tr").forEach(row => {
-        if (row.style.display !== "none") {
-          const statusCell = row.querySelector("td:last-child");
-          statusCell.textContent = "agreed";
-          statusCell.style.color = "green";
-        }
+    fetch(`/rukap/api/?week_offset=${encodeURIComponent(offset)}`, {
+      headers: {"Accept":"application/json"}
+    })
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then(({items, from, to}) => {
+        currentItems = items || [];
+        render(currentItems, from, to);
+      })
+      .catch(err => {
+        console.error("Ошибка загрузки:", err);
+        tbody.innerHTML = `<tr><td colspan="12" style="color:#d91e1e;">Ошибка загрузки данных</td></tr>`;
       });
-      alert(`${data.updated} нарушений согласовано ✅`);
-    } else {
-      alert("Ошибка: " + data.error);
-    }
+  }
+
+  // Массовое согласование текущей недели
+  approveAllBtn?.addEventListener("click", () => {
+    const rows = Array.from(tbody.querySelectorAll("tr[data-id]"));
+    if (!rows.length) return;
+
+    const ids = rows.map(tr => Number(tr.dataset.id)).filter(Boolean);
+    if (!ids.length) return;
+
+    fetch("/rukap/agreed/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        // Если снимешь @csrf_exempt во view — раскомментируй строку ниже:
+        // "X-CSRFToken": getCookie("csrftoken"),
+      },
+      body: JSON.stringify({ ids })
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          // Удаляем согласованные строки из текущей таблицы (они больше не 'sent')
+          rows.forEach(tr => tr.remove());
+          alert(`${data.updated} нарушений согласовано ✅`);
+
+          // Если всё удалили — подгрузи неделю заново (на случай гонок)
+          if (!tbody.querySelector("tr[data-id]")) {
+            loadWeek(currentWeekOffset);
+          }
+        } else {
+          alert("Ошибка: " + (data.error || "Не удалось согласовать"));
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Сбой сети при согласовании");
+      });
   });
+
+  // Навигация по неделям
+  prevBtn?.addEventListener("click", () => loadWeek(currentWeekOffset - 1));
+  nextBtn?.addEventListener("click", () => loadWeek(currentWeekOffset + 1));
+  currentBtn?.addEventListener("click", () => loadWeek(-1)); // “последняя неделя”
+
+  // Старт: прошлая неделя
+  loadWeek(-1);
 });
+

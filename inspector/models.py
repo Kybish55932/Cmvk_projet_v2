@@ -9,6 +9,7 @@ STATUS_CHOICES = [
     ("new", "Новая"),
     ("approved", "Подтверждена"),
     ("rejected", "Отклонена"),
+    ("agreed", "Согласовано"),
 ]
 
 SOURCE_CHOICES = [
@@ -27,7 +28,7 @@ class Inspector (models.Model):
     sector = models.CharField(max_length=50, blank=True)
     violation_start = models.TimeField(null=True, blank=True)
     violation_end = models.TimeField(null=True, blank=True)
-    service = models.CharField(max_length=100, blank=True)
+    services = models.ManyToManyField("slujba.Service", related_name="inspector_items", blank=True)
     violation = models.CharField(max_length=200, blank=True)
     description = models.TextField(blank=True)
     supervisor = models.CharField(max_length=100, blank=True)

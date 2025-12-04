@@ -1,0 +1,114 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Список нарушений</title>
+  <link rel="stylesheet" href="{% static 'viewlist/css/style.css' %}">
+</head>
+<body>
+  <!-- NAVBAR -->
+  <div class="navbar">
+    <div class="brand">Список нарушений</div>
+    <div>
+      Добро пожаловать, {{ request.user.username }}
+      <button class="btn">Выйти</button>
+    </div>
+  </div>
+
+  <!-- Фильтры -->
+  <div class="filters">
+    <h5>Фильтрация</h5>
+    <div class="row">
+      <div>
+        <label>Дата от</label>
+        <input type="date" id="dateFrom">
+      </div>
+      <div>
+        <label>Дата до</label>
+        <input type="date" id="dateTo">
+      </div>
+      <div>
+        <label>Аэропорт</label>
+        <select id="airport" multiple></select>
+      </div>
+      <div>
+        <label>Служба</label>
+        <select id="service" multiple></select>
+      </div>
+      <div>
+        <label>Вид нарушения</label>
+        <select id="violation" multiple></select>
+      </div>
+      <div>
+        <label>Кто нарушил</label>
+        <input type="text" id="offenderFilter" placeholder="Поиск по ФИО...">
+      </div>
+      <div class="buttons-group">
+        <button class="btn btn-success" id="applyFiltersBtn">Применить</button>
+        <button class="btn" id="resetFiltersBtn">Сбросить</button>
+      </div>
+      <div style="margin-left:auto;">
+        <button class="btn btn-success" id="exportExcelBtn">Экспорт в Excel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Таблица -->
+  <div class="table-container">
+    <table id="violationsTable">
+      <thead>
+        <tr>
+          <th>Дата</th>
+          <th>Аэропорт</th>
+          <th>Рейс</th>
+          <th>Направление</th>
+          <th>Прилет/Вылет</th>
+          <th>Время рейса</th>
+          <th>Сектор</th>
+          <th>Время нарушения</th>
+          <th>Служба</th>
+          <th>Вид нарушения</th>
+          <th>Описание</th>
+          <th>Кто нарушил</th>
+          <th>Принятые меры</th>
+          <th>Комментарии</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for v in violations %}
+        <tr>
+          <td>{{ v.date }}</td>
+          <td>{{ v.airport }}</td>
+          <td>{{ v.flight }}</td>
+          <td>{{ v.direction }}</td>
+          <td>{{ v.type }}</td>
+          <td>
+            {% if v.time_start or v.time_end %}
+              {{ v.time_start|default:"" }} - {{ v.time_end|default:"" }}
+            {% else %}—{% endif %}
+          </td>
+          <td>{{ v.sector }}</td>
+          <td>
+            {% if v.violation_start or v.violation_end %}
+              {{ v.violation_start|default:"" }} - {{ v.violation_end|default:"" }}
+            {% else %}—{% endif %}
+          </td>
+          <td>{{ v.service }}</td>
+          <td>{{ v.violation }}</td>
+          <td>{{ v.description }}</td>
+          <td>{{ v.offender }}</td>
+          <td>{{ v.measures }}</td>
+          <td>{{ v.comment }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="14">Нет данных</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.19.3/xlsx.full.min.js" defer></script>
+  <script src="{% static 'viewlist/js/script.js' %}"></script>
+</body>
+</html>

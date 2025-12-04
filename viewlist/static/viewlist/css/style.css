@@ -1,0 +1,180 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f4f6f9;
+}
+
+/* ===== Навбар ===== */
+.navbar {
+  background: linear-gradient(90deg, #0d6efd, #0a58ca);
+  color: white;
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.navbar .brand {
+  font-weight: bold;
+  font-size: 18px;
+}
+.navbar .btn {
+  background: white;
+  color: #0d6efd;
+  padding: 6px 12px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+}
+
+/* ===== Компактный фильтр ===== */
+.filters {
+  background: white;
+  border-radius: 8px;
+  padding: 6px 10px;
+  margin: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.filters h5 {
+  margin: 0 0 6px 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.filters .row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+}
+
+.filters .row > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.filters label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #333;
+}
+
+.filters input[type="date"],
+.filters input[type="text"],
+.ms-trigger {
+  width: 130px;
+  padding: 4px 6px;
+  border: 1px solid #ccd3e0;
+  border-radius: 5px;
+  background: #fff;
+  font-size: 12px;
+  box-sizing: border-box;
+}
+
+.filters .btn {
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.btn-success {
+  background: #28a745;
+  color: white;
+}
+
+.filters .buttons-group {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.ms.small .ms-trigger {
+  min-width: 130px;
+  font-size: 12px;
+}
+
+/* ===== Компактный мультиселект ===== */
+.ms {
+  position: relative;
+  display: inline-block;
+}
+
+.ms-dropdown {
+  position: absolute;
+  display: none;
+  top: calc(100% + 4px);
+  left: 0;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.ms-dropdown.open {
+  display: block;
+}
+
+.ms-opt {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 4px;
+  font-size: 12px;
+}
+
+.ms-dropdown .btn {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  background: #28a745;
+  color: white;
+  font-size: 12px;
+  padding: 4px 0;
+  border-radius: 5px;
+}
+
+/* ===== Таблица ===== */
+.table-container {
+  overflow-x: auto;
+  margin: 10px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+th, td {
+  border: 1px solid #e6e9ef;
+  padding: 6px;
+  text-align: left;
+  font-size: 13px;
+}
+
+thead th {
+  position: sticky;
+  top: 0;
+  background: #0d6efd;
+  color: white;
+  z-index: 1;
+}
+
+/* ===== Описание (текстовое поле) ===== */
+textarea.desc-text {
+  width: 100%;
+  min-height: 40px;
+  border: none;
+  background: transparent;
+  resize: vertical;
+  overflow: hidden;
+  font-family: inherit;
+  font-size: 13px;
+}
